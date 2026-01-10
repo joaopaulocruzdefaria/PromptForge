@@ -1,5 +1,4 @@
-```
-# Corporate Prompt Optimizer 🤖✨
+# Prompt Optimizer 🤖✨
 
 Uma ferramenta SaaS interna para auditar e otimizar prompts de IA, garantindo que eles sigam a cultura, o tom de voz e as regras de compliance da sua empresa.
 
@@ -91,10 +90,10 @@ npm run dev
     └── main.ts         # Ponto de entrada do Vue
 
 ```
+---
 
 ## 🐛 Solução de Problemas Comuns
 
 * **Erro 500 ao clicar nos botões:** Verifique se o arquivo `.env` foi criado corretamente e se a chave da API é válida (e tem saldo).
 * **Erro de conexão (Network Error):** Certifique-se de que o **Terminal 1** (`server.ts`) ainda está rodando. O Frontend precisa dele ligado para funcionar.
 
-```
