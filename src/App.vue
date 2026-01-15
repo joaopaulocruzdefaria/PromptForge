@@ -1,4 +1,5 @@
 <script setup>
+import PromptEditor from './components/PromptEditor.vue'
 import { ref } from 'vue'
 import { 
   Wand2, 
@@ -104,6 +105,7 @@ const copyToClipboard = async () => {
 }
 </script>
 <template>
+  <PromptEditor></PromptEditor>
   <div class="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30">
     
     <header class="max-w-7xl mx-auto mb-8 flex items-center gap-3 border-b border-slate-800 pb-6">
@@ -121,7 +123,7 @@ const copyToClipboard = async () => {
       <section class="flex flex-col gap-6">
         
         <div class="bg-slate-900 rounded-xl border border-slate-800 p-5 shadow-sm">
-          <label class="block text-sm font-semibold text-slate-300 mb-2 flex justify-between">
+          <label class="text-sm font-semibold text-slate-300 mb-2 flex justify-between">
             Company Rules / Context
             <span class="text-xs font-normal text-slate-500 bg-slate-800 px-2 py-0.5 rounded">Optional</span>
           </label>
@@ -138,7 +140,7 @@ const copyToClipboard = async () => {
           </label>
           <textarea 
             v-model="originalPrompt"
-            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all resize-none flex-1 min-h-[200px]"
+            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all resize-none flex-1 min-h-50"
             placeholder="Draft your prompt here... (e.g., 'Write an email to clients about the delay')"
           ></textarea>
           
@@ -155,7 +157,7 @@ const copyToClipboard = async () => {
             <button 
               @click="handleOptimize"
               :disabled="isLoading || !originalPrompt"
-              class="flex-[2] px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              class="flex-2 px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
               <Wand2 class="w-4 h-4" />
               Optimize Prompt
@@ -164,7 +166,7 @@ const copyToClipboard = async () => {
         </div>
       </section>
 
-      <section class="flex flex-col h-full min-h-[500px]">
+      <section class="flex flex-col h-full min-h-125">
         
         <div v-if="isLoading" class="flex-1 bg-slate-900 rounded-xl border border-slate-800 p-8 flex flex-col items-center justify-center text-slate-400 animate-pulse">
           <Loader2 class="w-10 h-10 animate-spin text-emerald-500 mb-4" />
@@ -252,8 +254,8 @@ const copyToClipboard = async () => {
       </section>
     </main>
   </div>
-</template>
 
+</template>
 <style scoped>
 /* Custom scrollbar for the textarea and result areas */
 textarea::-webkit-scrollbar, div::-webkit-scrollbar {
