@@ -11,10 +11,8 @@ const emit = defineEmits<{
 }>();
 
 const content = ref(props.modelValue);
-// Referência para o textarea que tem o scroll
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
-// Expõe essa referência para o componente pai
 defineExpose({
     scrollContainer: textareaRef
 });
@@ -33,13 +31,15 @@ const handleInput = (e: Event) => {
 </script>
 
 <template>
-  <div class="bg-white h-[75vh] w-full rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col relative group">
-    <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 shrink-0 flex items-center justify-between">
+  <div class="bg-zinc-900 h-[75vh] w-full rounded-xl shadow-2xl shadow-black/50 border border-zinc-800 overflow-hidden flex flex-col relative group transition-colors duration-300 hover:border-zinc-700">
+    
+    <div class="bg-zinc-800/50 border-b border-zinc-800 px-4 py-2 shrink-0 flex items-center justify-between backdrop-blur-sm">
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-        <div class="w-3 h-3 rounded-full bg-green-400"></div>
-        <span class="ml-4 text-xs font-mono text-gray-500">prompt.md</span>
+        <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+        
+        <span class="ml-4 text-xs font-mono text-fuchsia-400 font-medium tracking-wide drop-shadow-sm">prompt.md</span>
       </div>
     </div>
     
@@ -48,8 +48,26 @@ const handleInput = (e: Event) => {
       :value="content"
       @input="handleInput"
       :placeholder="placeholder || 'Digite seu markdown aqui...'"
-      class="w-full h-full flex-1 p-6 sm:p-8 font-mono text-sm text-gray-800 focus:outline-none resize-none bg-gray-50 overflow-y-auto leading-relaxed custom-scrollbar"
+      class="w-full h-full flex-1 p-6 sm:p-8 font-mono text-sm text-gray-300 placeholder-zinc-600 focus:outline-none resize-none bg-transparent overflow-y-auto leading-relaxed custom-scrollbar caret-fuchsia-500 selection:bg-fuchsia-500/20 selection:text-fuchsia-100"
       spellcheck="false"
     />
   </div>
 </template>
+
+<style scoped>
+/* Scrollbar escura para combinar com o Zinc-900 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46; /* zinc-700 */
+  border-radius: 5px;
+  border: 2px solid #18181b; /* Borda da cor do fundo (zinc-900) para criar espaçamento */
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #52525b; /* zinc-600 */
+}
+</style>
