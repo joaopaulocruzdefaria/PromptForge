@@ -11,6 +11,7 @@ import {
   Loader2,
   Terminal
 } from 'lucide-vue-next'
+import Logo from './components/Logo.vue'
 
 // --- Variáveis de Estado (Ajustadas para bater com o seu HTML) ---
 const companyContext = ref(`Tone: Professional but approachable.
@@ -25,7 +26,6 @@ const hasResults = ref(false)
 const activeTab = ref('analysis') // 'analysis' | 'optimized'
 const showCopied = ref(false)
 
-// --- Ação 1: AUDITAR (Conectado ao Backend) ---
 const handleAudit = async () => {
   if (!originalPrompt.value) return
   
@@ -60,7 +60,6 @@ const handleAudit = async () => {
   }
 }
 
-// --- Ação 2: OTIMIZAR (Conectado ao Backend) ---
 const handleOptimize = async () => {
   if (!originalPrompt.value) return
 
@@ -106,11 +105,15 @@ const copyToClipboard = async () => {
 }
 </script>
 <template>
-<DualEditorView 
-    :initial-content="promptContent"
-    mode="split"
-    @update:content="handleContentUpdate"
-  />
+<div id="App" class="bg-black">
+    <Logo />
+    <DualEditorView 
+        :initial-content="promptContent"
+        mode="split"
+        @update:content="handleContentUpdate"
+      />
+</div>
+
 </template>
 <style scoped>
 /* Custom scrollbar for the textarea and result areas */
