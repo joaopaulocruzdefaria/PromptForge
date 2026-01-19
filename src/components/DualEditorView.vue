@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="min-h-screen bg-black py-0 px-4 w-full">
-        <div class="max-w-7xl mx-auto mb-6">
+        <div class="max-w-[90%] mx-auto mb-6">
             <div
                 class="flex items-center justify-between bg-zinc-900 p-4 rounded-xl shadow-lg shadow-fuchsia-900/10 border border-zinc-800"
             >

@@ -1,6 +1,8 @@
 <script setup>
 import PromptEditor from './components/PromptEditor.vue'
 import DualEditorView from './components/DualEditorView.vue'
+import AuditButton from './components/AuditButton.vue'
+import AnalyzeButton from './components/AnalyzeButton.vue'
 import { ref } from 'vue'
 import { 
   Wand2, 
@@ -112,6 +114,8 @@ const copyToClipboard = async () => {
         mode="split"
         @update:content="handleContentUpdate"
       />
+    <AuditButton />
+    <AnalyzeButton />
 </div>
 
 </template>
