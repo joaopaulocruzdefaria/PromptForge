@@ -1,4 +1,4 @@
-# Prompt Optimizer 🤖✨
+# PromptForge 🤖✨
 
 Uma ferramenta SaaS interna para auditar e otimizar prompts de IA, garantindo que eles sigam a cultura, o tom de voz e as regras de compliance da sua empresa.
 
@@ -16,7 +16,7 @@ Uma ferramenta SaaS interna para auditar e otimizar prompts de IA, garantindo qu
 * **Frontend:** Vue.js 3 (Composition API) + Vite
 * **Estilização:** Tailwind CSS + Lucide Icons
 * **Backend:** Node.js + Express (TypeScript)
-* **AI Engine:** OpenAI API (GPT-4o / GPT-4o-mini)
+* **AI Engine:** OpenAI API + Gemini
 
 ---
 
