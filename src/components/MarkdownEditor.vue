@@ -64,7 +64,6 @@
 </template>
 
 <style scoped>
-  /* Scrollbar escura para combinar com o Zinc-900 */
   .custom-scrollbar::-webkit-scrollbar {
     width: 10px;
   }
@@ -72,11 +71,11 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #3f3f46; /* zinc-700 */
+    background: #3f3f46;
     border-radius: 5px;
-    border: 2px solid #18181b; /* Borda da cor do fundo (zinc-900) para criar espaçamento */
+    border: 2px solid #18181b; 
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #52525b; /* zinc-600 */
+    background: #52525b;
   }
 </style>

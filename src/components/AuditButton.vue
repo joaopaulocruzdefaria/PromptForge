@@ -5,7 +5,7 @@
 
 <template>
   <button
-    @click="emit('click')"
+    @click="emit('audit')"
     class="group fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-br from-purple-600 to-fuchsia-500 text-white shadow-lg shadow-purple-500/40 border border-white/10 transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-1 hover:shadow-purple-500/60 active:scale-95 active:shadow-purple-500/20"
   >
     <SearchCode stroke-width="2.5" class="w-7 h-7" />
