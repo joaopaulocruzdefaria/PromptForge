@@ -6,27 +6,29 @@ Uma ferramenta SaaS interna para auditar e otimizar prompts de IA, garantindo qu
 
 ## 📋 Funcionalidades
 
-* **Auditor de Prompts:** Analisa um prompt e retorna uma lista de críticas construtivas baseadas nas regras da empresa.
-* **Otimizador de Prompts:** Reescreve automaticamente o prompt utilizando técnicas de *Prompt Engineering* (Chain of Thought, Few-Shot) para obter melhores resultados.
-* **Contexto Configurável:** Permite definir regras dinâmicas (ex: "Tom formal", "Evitar voz passiva") que guiam a IA.
-* **Interface Moderna:** Dashboard Dark Mode construído com Tailwind CSS.
+- **Auditor de Prompts:** Analisa um prompt e retorna uma lista de críticas construtivas baseadas nas regras da empresa.
+- **Otimizador de Prompts:** Reescreve automaticamente o prompt utilizando técnicas de _Prompt Engineering_ (Chain of Thought, Few-Shot) para obter melhores resultados.
+- **Contexto Configurável:** Permite definir regras dinâmicas (ex: "Tom formal", "Evitar voz passiva") que guiam a IA.
+- **Interface Moderna:** Dashboard Dark Mode construído com Tailwind CSS.
 
 ## 🛠 Stack Tecnológica
 
-* **Frontend:** Vue.js 3 (Composition API) + Vite
-* **Estilização:** Tailwind CSS + Lucide Icons
-* **Backend:** Node.js + Express (TypeScript)
-* **AI Engine:** OpenAI API + Gemini
+- **Frontend:** Vue.js 3 (Composition API) + Vite
+- **Estilização:** Tailwind CSS + Lucide Icons
+- **Backend:** Node.js + Express (TypeScript)
+- **AI Engine:** OpenAI API + Gemini
 
 ---
 
 ## 🚀 Como Configurar o Projeto
 
 ### 1. Pré-requisitos
-* Node.js instalado (v18 ou superior).
-* Uma chave de API da OpenAI ([Obter aqui](https://platform.openai.com/api-keys)).
+
+- Node.js instalado (v18 ou superior).
+- Uma chave de API da OpenAI ([Obter aqui](https://platform.openai.com/api-keys)).
 
 ### 2. Instalação
+
 Abra o terminal na pasta raiz do projeto e instale todas as dependências (Front e Back):
 
 ```bash
@@ -62,7 +64,7 @@ npx tsx server.ts
 
 ```
 
-*Aguarde a mensagem: `🚀 Backend (TS) rodando na porta 3000*`
+_Aguarde a mensagem: `🚀 Backend (TS) rodando na porta 3000_`
 
 ### Terminal 2: Frontend (Vue + Vite)
 
@@ -73,7 +75,7 @@ npm run dev
 
 ```
 
-*Acesse o projeto no navegador em:* `http://localhost:5173`
+_Acesse o projeto no navegador em:_ `http://localhost:5173`
 
 ---
 
@@ -90,10 +92,10 @@ npm run dev
     └── main.ts         # Ponto de entrada do Vue
 
 ```
+
 ---
 
 ## 🐛 Solução de Problemas Comuns
 
-* **Erro 500 ao clicar nos botões:** Verifique se o arquivo `.env` foi criado corretamente e se a chave da API é válida (e tem saldo).
-* **Erro de conexão (Network Error):** Certifique-se de que o **Terminal 1** (`server.ts`) ainda está rodando. O Frontend precisa dele ligado para funcionar.
-
+- **Erro 500 ao clicar nos botões:** Verifique se o arquivo `.env` foi criado corretamente e se a chave da API é válida (e tem saldo).
+- **Erro de conexão (Network Error):** Certifique-se de que o **Terminal 1** (`server.ts`) ainda está rodando. O Frontend precisa dele ligado para funcionar.
