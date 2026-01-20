@@ -3,89 +3,11 @@
   import DualEditorView from "./components/DualEditorView.vue";
   import AuditButton from "./components/AuditButton.vue";
   import AnalyzeButton from "./components/AnalyzeButton.vue";
+  import AnalyzeModal from "./components/AnalyzeModal.vue";
+  import AuditModal from "./components/AuditModal.vue";
   import { ref } from "vue";
   import { Wand2, Search, Copy, Check, AlertCircle, Loader2, Terminal } from "lucide-vue-next";
   import Logo from "./components/Logo.vue";
-
-  // --- Variáveis de Estado (Ajustadas para bater com o seu HTML) ---
-  const companyContext = ref(`Tone: Professional but approachable.
-Core Values: Transparency, Customer Success.
-Restrictions: Avoid passive voice. Always provide clear next steps.`);
-
-  const originalPrompt = ref("");
-  const analysisResult = ref([]);
-  const optimizedResult = ref("");
-  const isLoading = ref(false);
-  const hasResults = ref(false);
-  const activeTab = ref("analysis"); // 'analysis' | 'optimized'
-  const showCopied = ref(false);
-
-  const handleAudit = async () => {
-    if (!originalPrompt.value) return;
-
-    isLoading.value = true;
-    hasResults.value = false;
-    activeTab.value = "analysis";
-
-    try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: originalPrompt.value,
-          context: companyContext.value,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.analysis) {
-        analysisResult.value = data.analysis;
-        optimizedResult.value = ""; // Limpa o otimizado anterior para não confundir
-        hasResults.value = true;
-      } else {
-        console.error("Formato inválido:", data);
-      }
-    } catch (error) {
-      console.error("Erro na requisição:", error);
-      alert("Erro ao conectar com o servidor local.");
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const handleOptimize = async () => {
-    if (!originalPrompt.value) return;
-
-    isLoading.value = true;
-    hasResults.value = false;
-    activeTab.value = "optimized";
-
-    try {
-      const response = await fetch("/api/optimize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: originalPrompt.value,
-          context: companyContext.value,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.optimizedPrompt) {
-        // Dica: Se quiser que ele TAMBÉM analise ao mesmo tempo,
-        // teríamos que mudar o backend. Por enquanto ele só reescreve.
-        optimizedResult.value = data.optimizedPrompt;
-        hasResults.value = true;
-      }
-    } catch (error) {
-      console.error("Erro na requisição:", error);
-      alert("Erro ao conectar com o servidor local.");
-    } finally {
-      isLoading.value = false;
-    }
-  };
 
   const copyToClipboard = async () => {
     if (!optimizedResult.value) return;
@@ -97,17 +19,25 @@ Restrictions: Avoid passive voice. Always provide clear next steps.`);
       console.error("Failed to copy", err);
     }
   };
+
+  const showAudit = ref(false);
+  const showAnalyze = ref(false);
 </script>
 <template>
   <div id="App" class="bg-black">
+    <div>
+      <AuditButton @audit="showAudit = true" />
+      <AnalyzeButton @click="showAnalyze = true" />
+      <AuditModal :is-open="showAudit" @close="showAudit = false" />
+      <AnalyzeModal :is-open="showAnalyze" @close="showAnalyze = false" />
+    </div>
+
     <Logo />
     <DualEditorView
       :initial-content="promptContent"
       mode="split"
       @update:content="handleContentUpdate"
     />
-    <AuditButton />
-    <AnalyzeButton />
   </div>
 </template>
 <style scoped>

@@ -101,96 +101,114 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-black py-0 px-4 w-full">
-    <div class="max-w-[90%] mx-auto mb-6">
-      <div
-        class="flex items-center justify-between bg-zinc-900 p-4 rounded-xl shadow-lg shadow-fuchsia-900/10 border border-zinc-800"
-      >
-        <div class="flex items-center gap-3">
+  <div class="min-h-screen bg-black py-0 px-4 w-full relative">
+    
+    <div class="sticky top-6 z-40 mb-8 flex justify-center">
+      
+      <div class="relative flex items-center">
+        
+        <div class="flex p-1.5 bg-zinc-900/80 backdrop-blur-md border border-zinc-800/60 rounded-full shadow-2xl shadow-black/50">
+          
           <button
             @click="currentMode = 'visual'"
-            :class="
-              currentMode === 'visual'
-                ? 'bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/25'
-                : 'bg-zinc-800 text-gray-400 hover:bg-zinc-700 hover:text-gray-200'
-            "
-            class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:shadow-md"
+            class="relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2"
+            :class="currentMode === 'visual' 
+              ? 'bg-zinc-800 text-white shadow-lg ring-1 ring-white/10' 
+              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'"
           >
-            <FileText :size="18" /> Visual
+            <FileText :size="16" :class="currentMode === 'visual' ? 'text-fuchsia-400' : ''" />
+            Visual
           </button>
+
           <button
             @click="currentMode = 'markdown'"
-            :class="
-              currentMode === 'markdown'
-                ? 'bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/25'
-                : 'bg-zinc-800 text-gray-400 hover:bg-zinc-700 hover:text-gray-200'
-            "
-            class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:shadow-md"
+            class="relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2"
+            :class="currentMode === 'markdown' 
+              ? 'bg-zinc-800 text-white shadow-lg ring-1 ring-white/10' 
+              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'"
           >
-            <Code :size="18" /> Markdown
+            <Code :size="16" :class="currentMode === 'markdown' ? 'text-fuchsia-400' : ''" />
+            Markdown
           </button>
+
           <button
             @click="currentMode = 'split'"
-            :class="
-              currentMode === 'split'
-                ? 'bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/25'
-                : 'bg-zinc-800 text-gray-400 hover:bg-zinc-700 hover:text-gray-200'
-            "
-            class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:shadow-md"
+            class="relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2"
+            :class="currentMode === 'split' 
+              ? 'bg-zinc-800 text-white shadow-lg ring-1 ring-white/10' 
+              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'"
           >
-            <SplitSquareHorizontal :size="18" /> Dividido
+            <SplitSquareHorizontal :size="16" :class="currentMode === 'split' ? 'text-fuchsia-400' : ''" />
+            Dividido
           </button>
         </div>
 
-        <div v-if="currentMode === 'split'" class="border-l pl-3 ml-3 border-zinc-700">
-          <button
-            @click="isSyncScrollEnabled = !isSyncScrollEnabled"
-            :class="
-              isSyncScrollEnabled
-                ? 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/50'
-                : 'bg-zinc-800 text-gray-400 border-zinc-700 hover:bg-zinc-700'
-            "
-            class="flex items-center gap-2 px-3 py-2 rounded-lg border transition-all"
-            :title="
-              isSyncScrollEnabled ? 'Desativar scroll sincronizado' : 'Ativar scroll sincronizado'
-            "
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-x-4 scale-90"
+          enter-to-class="opacity-100 translate-x-0 scale-100"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 translate-x-0 scale-100"
+          leave-to-class="opacity-0 -translate-x-4 scale-90"
+        >
+          <div 
+            v-if="currentMode === 'split'" 
+            class="absolute left-[104%] top-1/2 -translate-y-1/2 ml-2 hidden sm:block"
           >
-            <component :is="isSyncScrollEnabled ? Link2 : Link2Off" :size="18" />
-            <span class="text-sm font-medium hidden sm:inline">Sync Scroll</span>
-          </button>
-        </div>
+            <button
+              @click="isSyncScrollEnabled = !isSyncScrollEnabled"
+              class="flex items-center justify-center p-2.5 rounded-full border shadow-lg backdrop-blur-md transition-all duration-300 group whitespace-nowrap"
+              :class="isSyncScrollEnabled 
+                ? 'bg-zinc-900 border-fuchsia-500/50 text-fuchsia-400 shadow-fuchsia-900/20' 
+                : 'bg-zinc-900/80 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'"
+              title="Sincronizar Rolagem"
+            >
+              <component 
+                :is="isSyncScrollEnabled ? Link2 : Link2Off" 
+                :size="18" 
+                class="transition-transform duration-300 group-hover:scale-110"
+              />
+            </button>
+          </div>
+        </Transition>
+
       </div>
     </div>
 
-    <div :class="currentMode === 'split' ? 'max-w-[90%] mx-auto' : 'max-w-7xl mx-auto'">
-      <div v-if="currentMode === 'visual'" class="max-w-4xl mx-auto">
+    <div :class="currentMode === 'split' ? 'max-w-[95%] mx-auto' : 'max-w-5xl mx-auto'">
+      
+      <div v-show="currentMode === 'visual'" class="animate-in fade-in zoom-in-95 duration-300">
         <VisualEditor v-model="content" @update:model-value="updateContent" />
       </div>
 
-      <div v-else-if="currentMode === 'markdown'" class="max-w-4xl mx-auto">
+      <div v-show="currentMode === 'markdown'" class="animate-in fade-in zoom-in-95 duration-300">
         <MarkdownEditor v-model="content" @update:model-value="updateContent" />
       </div>
 
-      <div v-else-if="currentMode === 'split'" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="min-w-0">
-          <h3 class="text-sm font-semibold text-zinc-400 mb-3 flex items-center gap-2">
-            <FileText :size="16" /> Editor Visual
-          </h3>
+      <div v-show="currentMode === 'split'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in zoom-in-95 duration-300">
+        <div class="flex flex-col h-full">
+           <div class="mb-3 px-2 flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-fuchsia-500/50"></span>
+            Editor Visual
+          </div>
           <VisualEditor
             ref="visualEditorRef"
             v-model="content"
             @update:model-value="updateContent"
+            class="flex-1"
           />
         </div>
 
-        <div class="min-w-0">
-          <h3 class="text-sm font-semibold text-zinc-400 mb-3 flex items-center gap-2">
-            <Code :size="16" /> Código Markdown
-          </h3>
+        <div class="flex flex-col h-full">
+           <div class="mb-3 px-2 flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-blue-500/50"></span>
+            Código Markdown
+          </div>
           <MarkdownEditor
             ref="markdownEditorRef"
             v-model="content"
             @update:model-value="updateContent"
+            class="flex-1"
           />
         </div>
       </div>
