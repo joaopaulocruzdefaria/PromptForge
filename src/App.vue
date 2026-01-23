@@ -1,12 +1,12 @@
 <script setup lang="ts">
-  import PromptEditor from "./components/PromptEditor.vue"; // Se não usa, pode remover
+  // import PromptEditor from "./components/PromptEditor.vue"; // Se não usa, pode remover
   import DualEditorView from "./components/DualEditorView.vue";
   import AuditButton from "./components/AuditButton.vue";
   import AnalyzeButton from "./components/AnalyzeButton.vue";
   import AnalyzeModal from "./components/AnalyzeModal.vue";
   import AuditModal from "./components/AuditModal.vue";
   import { ref } from "vue";
-  import { Wand2, Search, Copy, Check, AlertCircle, Loader2, Terminal } from "lucide-vue-next";
+  // import { Wand2, Search, Copy, Check, AlertCircle, Loader2, Terminal } from "lucide-vue-next";
   import Logo from "./components/Logo.vue";
 
   // --- 1. ESTADO CENTRAL DO PROMPT (A correção principal) ---

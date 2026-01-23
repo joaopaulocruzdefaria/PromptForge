@@ -82,7 +82,7 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
     
     Não inclua nenhum texto fora do JSON.
     `;
-    
+
     const completion = await openai.chat.completions.create({
       model: "gpt-5.1",
       messages: [
@@ -109,11 +109,42 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
   }
 });
 
-// --- ROTA 2: OTIMIZAR (Retorna Texto Melhorado) ---
-// Idealmente usando o modelo mais inteligente disponível
 app.post("/api/optimize", async (req: Request, res: Response) => {
-  // Implementação futura ou se você já tiver esse botão no front
-  res.json({ message: "Rota pronta para implementação" });
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      res.status(400).json({ error: "O prompt é obrigatório." });
+      return;
+    }
+
+    const SYSTEM_PROMPT = `
+    Você é um assistente especialista em refatoração de prompts.
+    SEU OBJETIVO: Reescrever o prompt do usuário para torná-lo mais claro, específico e estruturado, mantendo a intenção original.
+    
+    REGRAS:
+    1. Não adicione explicações ou conversas.
+    2. Retorne APENAS o conteúdo do novo prompt.
+    3. Mantenha variáveis ou placeholders que o usuário tenha colocado (ex: {{nome}}).
+    4. Melhore a formatação usando Markdown.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.1", // Ou gpt-4-turbo, ou o modelo que preferir
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.3, // Temperatura mais baixa para ser mais assertivo
+    });
+
+    const optimizedPrompt = completion.choices[0].message.content;
+
+    res.json({ optimizedPrompt });
+  } catch (error: any) {
+    console.error("Erro na otimização:", error);
+    res.status(500).json({ error: "Falha ao otimizar o prompt." });
+  }
 });
 
 // Inicialização
