@@ -1,5 +1,5 @@
-<script setup>
-  import PromptEditor from "./components/PromptEditor.vue";
+<script setup lang="ts">
+  import PromptEditor from "./components/PromptEditor.vue"; // Se não usa, pode remover
   import DualEditorView from "./components/DualEditorView.vue";
   import AuditButton from "./components/AuditButton.vue";
   import AnalyzeButton from "./components/AnalyzeButton.vue";
@@ -8,6 +8,24 @@
   import { ref } from "vue";
   import { Wand2, Search, Copy, Check, AlertCircle, Loader2, Terminal } from "lucide-vue-next";
   import Logo from "./components/Logo.vue";
+
+  // --- 1. ESTADO CENTRAL DO PROMPT (A correção principal) ---
+  // Essa variável guarda o texto. O Editor escreve nela, o Modal lê dela.
+  const currentPrompt = ref("# Contexto Inicial\nDigite seu prompt aqui...");
+
+  // Variáveis de controle dos Modais
+  const showAudit = ref(false);
+  const showAnalyze = ref(false);
+
+  // Variáveis auxiliares para o copy (estavam faltando no seu código original)
+  const optimizedResult = ref("");
+  const showCopied = ref(false);
+
+  // --- 2. FUNÇÃO QUE RECEBE O TEXTO DO EDITOR ---
+  const handleContentUpdate = (newText: string) => {
+    currentPrompt.value = newText;
+    // console.log("Texto atualizado no App.vue:", newText); // Descomente para testar
+  };
 
   const copyToClipboard = async () => {
     if (!optimizedResult.value) return;
@@ -19,27 +37,34 @@
       console.error("Failed to copy", err);
     }
   };
-
-  const showAudit = ref(false);
-  const showAnalyze = ref(false);
 </script>
+
 <template>
-  <div id="App" class="bg-black">
-    <div>
+  <div id="App" class="bg-black min-h-screen">
+    <div class="p-4 flex gap-2">
       <AuditButton @audit="showAudit = true" />
+
       <AnalyzeButton @click="showAnalyze = true" />
+
       <AuditModal :is-open="showAudit" @close="showAudit = false" />
-      <AnalyzeModal :is-open="showAnalyze" @close="showAnalyze = false" />
+
+      <AnalyzeModal
+        :isOpen="showAnalyze"
+        :promptContent="currentPrompt"
+        @close="showAnalyze = false"
+      />
     </div>
 
     <Logo />
+
     <DualEditorView
-      :initial-content="promptContent"
+      :initial-content="currentPrompt"
       mode="split"
       @update:content="handleContentUpdate"
     />
   </div>
 </template>
+
 <style scoped>
   /* Custom scrollbar for the textarea and result areas */
   textarea::-webkit-scrollbar,
