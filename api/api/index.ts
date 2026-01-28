@@ -1,41 +1,36 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import OpenAI from "openai";
 
-// 1. Configuração de Ambiente
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); // Em produção, configure a origin: 'http://seusite.com'
+// No Vercel, como frontend e backend estão no mesmo domínio, o CORS é simplificado,
+// mas manter assim não faz mal.
+app.use(cors());
 
-// 2. Instanciação do Cliente OpenAI (Padrão SDK v4)
-if (!process.env.OPENAI_API_KEY) {
-  console.error("❌ ERRO: OPENAI_API_KEY não encontrada no .env");
-  process.exit(1);
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Interfaces
-interface AnalysisRequestBody {
-  prompt: string;
-}
-
+// --- ROTA 1: ANÁLISE ---
 app.post("/api/analyze", async (req: Request, res: Response) => {
   try {
-    const { prompt } = req.body; // Remova a tipagem forçada aqui se der erro, deixe inferir
-
+    const { prompt } = req.body;
     if (!prompt) {
       res.status(400).json({ error: "O prompt é obrigatório." });
       return;
     }
+
+    const userApiKey = req.headers["x-api-key"] as string;
+    const userModel = (req.headers["x-model"] as string) || "gpt-4-turbo";
+
+    if (!userApiKey) {
+      res.status(401).json({
+        error: "MISSING_API_KEY",
+        message: "⚠️ Configure sua chave de API para continuar.",
+      });
+      return;
+    }
+
+    const openai = new OpenAI({ apiKey: userApiKey });
 
     const SYSTEM_PROMPT = `
     Você é um Especialista Sênior em Prompt Engineering, com foco em avaliação crítica, precisão semântica e clareza de requisitos.
@@ -82,18 +77,12 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
 
     Não inclua nenhum texto fora do JSON.
     `;
-
+    
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.1",
+      model: userModel,
       messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },
       temperature: 0.4,
@@ -101,22 +90,34 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
 
     const content = completion.choices[0].message.content;
     const jsonResult = JSON.parse(content || "{}");
-
     res.json(jsonResult);
   } catch (error: any) {
     console.error("Erro na análise:", error);
-    res.status(500).json({ error: "Falha ao processar a análise." });
+    res.status(500).json({ error: error.message || "Falha ao processar." });
   }
 });
 
+// --- ROTA 2: OTIMIZAÇÃO ---
 app.post("/api/optimize", async (req: Request, res: Response) => {
   try {
     const { prompt } = req.body;
-
     if (!prompt) {
       res.status(400).json({ error: "O prompt é obrigatório." });
       return;
     }
+
+    const userApiKey = req.headers["x-api-key"] as string;
+    const userModel = (req.headers["x-model"] as string) || "gpt-4-turbo";
+
+    if (!userApiKey) {
+      res.status(401).json({
+        error: "MISSING_API_KEY",
+        message: "⚠️ Configure sua chave de API para continuar.",
+      });
+      return;
+    }
+
+    const openai = new OpenAI({ apiKey: userApiKey });
 
     const SYSTEM_PROMPT = `
       Você é um assistente especialista em refatoração de prompts.
@@ -131,25 +132,22 @@ app.post("/api/optimize", async (req: Request, res: Response) => {
     `;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.1", // Ou gpt-4-turbo, ou o modelo que preferir
+      model: userModel,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: prompt },
       ],
-      temperature: 0.3, // Temperatura mais baixa para ser mais assertivo
+      temperature: 0.3,
     });
 
     const optimizedPrompt = completion.choices[0].message.content;
-
     res.json({ optimizedPrompt });
   } catch (error: any) {
     console.error("Erro na otimização:", error);
-    res.status(500).json({ error: "Falha ao otimizar o prompt." });
+    res.status(500).json({ error: error.message || "Falha ao otimizar." });
   }
 });
 
-// Inicialização
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-  console.log(`🤖 Modo OpenAI ativado.`);
-});
+// --- AQUI ESTÁ O SEGREDO DO VERCEL ---
+// Não usamos app.listen(PORT). Exportamos o app.
+export default app;
