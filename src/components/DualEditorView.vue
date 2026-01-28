@@ -4,8 +4,15 @@
   import MarkdownEditor from "./MarkdownEditor.vue";
   import AuditModal from "./AuditModal.vue";
   import DiffModal from "./DiffModal.vue";
-  import AuditButton from "./AuditButton.vue"; // Importando seu componente de botão
-  import { FileText, Code, SplitSquareHorizontal, Link2, Link2Off } from "lucide-vue-next";
+  import AuditButton from "./AuditButton.vue";
+  import { useSettings } from "../composables/useSettings"; // Importação correta
+  import {
+    FileText,
+    Code,
+    SplitSquareHorizontal,
+    Link2,
+    Link2Off,
+  } from "lucide-vue-next";
 
   const props = defineProps<{
     initialContent?: string;
@@ -16,6 +23,9 @@
     "update:content": [value: string];
   }>();
 
+  // --- Setup do Composable de Configurações (CORREÇÃO 1) ---
+  const { apiKey, selectedModel, toggleSettings } = useSettings();
+
   const content = ref(props.initialContent || "# Contexto Inicial\nDigite seu prompt aqui...");
   const currentMode = ref(props.mode || "visual");
   const isSyncScrollEnabled = ref(false);
@@ -24,32 +34,62 @@
   const isAuditModalOpen = ref(false);
   const isDiffModalOpen = ref(false);
   const optimizedContent = ref("");
+  const isAuditing = ref(false); // Estado de Loading para UX
 
   // --- Lógica de Auditoria ---
   const openAudit = () => {
-    console.log("Abrindo modal de auditoria...");
     isAuditModalOpen.value = true;
   };
 
   const handleRunAudit = async () => {
+    // Validação da Chave
+    if (!apiKey.value) {
+      alert("⚠️ Configure sua chave de API para continuar.");
+      isAuditModalOpen.value = false;
+      toggleSettings(); // Abre settings
+      return;
+    }
+
+    isAuditing.value = true; // Ativa loading
+
     try {
-      const response = await fetch("http://localhost:3000/api/optimize", {
+      const response = await fetch("/api/optimize", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey.value,
+          "x-model": selectedModel.value,
+        },
         body: JSON.stringify({ prompt: content.value }),
       });
 
-      const data = await response.json();
+      if (response.status === 401) {
+        const errorData = await response.json();
+
+        // Mostra a mensagem bonita que definimos no server.ts
+        alert(errorData.message || "Erro de autenticação.");
+
+        isAuditModalOpen.value = false;
+        toggleSettings(); // Abre settings automaticamente para o usuário corrigir
+        return;
+      }
+
+      const data = await response.json(); // (CORREÇÃO 2: Ler o JSON)
+
+      if (!response.ok) throw new Error(data.error || "Erro na requisição");
 
       if (data.optimizedPrompt) {
         optimizedContent.value = data.optimizedPrompt;
-        isAuditModalOpen.value = false;
-        isDiffModalOpen.value = true;
+
+        // (CORREÇÃO 3: Fluxo de Sucesso)
+        isAuditModalOpen.value = false; // Fecha a confirmação
+        isDiffModalOpen.value = true; // Abre o Diff
       }
     } catch (error) {
       console.error("Erro ao auditar:", error);
-      alert("Erro ao conectar com a API de auditoria.");
-      isAuditModalOpen.value = false;
+      alert("Erro ao conectar com a API. Verifique o console.");
+    } finally {
+      isAuditing.value = false; // Desativa loading
     }
   };
 
@@ -66,7 +106,7 @@
     emit("update:content", newContent);
   };
 
-  // --- Lógica de Scroll Sincronizado ---
+  // --- Lógica de Scroll Sincronizado (Mantida igual, está ótima) ---
   let isProgrammaticScroll = false;
   let unregisterListeners: (() => void) | null = null;
 
@@ -212,14 +252,13 @@
     </div>
 
     <AuditModal
-      v-if="isAuditModalOpen"
       :isOpen="isAuditModalOpen"
-      @close="isAuditModalOpen = false"
+      :isLoading="isAuditing"
+      @close="!isAuditing && (isAuditModalOpen = false)"
       @confirm="handleRunAudit"
     />
 
     <DiffModal
-      v-if="isDiffModalOpen"
       :isOpen="isDiffModalOpen"
       :originalText="content"
       :newText="optimizedContent"
@@ -272,6 +311,6 @@
       </div>
     </div>
 
-    <AuditButton @audit="openAudit" />
+    <AuditButton @audit="openAudit" :isLoading="isAuditing" />
   </div>
 </template>
