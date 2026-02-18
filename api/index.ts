@@ -20,7 +20,7 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
     }
 
     const userApiKey = req.headers["x-api-key"] as string;
-    const userModel = (req.headers["x-model"] as string) || "gpt-4-turbo";
+    const userModel = (req.headers["x-model"] as string) || "gpt-4.1";
 
     if (!userApiKey) {
       res.status(401).json({
@@ -77,7 +77,7 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
 
     Não inclua nenhum texto fora do JSON.
     `;
-    
+
     const completion = await openai.chat.completions.create({
       model: userModel,
       messages: [
@@ -107,7 +107,7 @@ app.post("/api/optimize", async (req: Request, res: Response) => {
     }
 
     const userApiKey = req.headers["x-api-key"] as string;
-    const userModel = (req.headers["x-model"] as string) || "gpt-4-turbo";
+    const userModel = (req.headers["x-model"] as string) || "gpt-4.1";
 
     if (!userApiKey) {
       res.status(401).json({
@@ -120,15 +120,24 @@ app.post("/api/optimize", async (req: Request, res: Response) => {
     const openai = new OpenAI({ apiKey: userApiKey });
 
     const SYSTEM_PROMPT = `
-      Você é um assistente especialista em refatoração de prompts.
-      SEU OBJETIVO: Reescrever o prompt do usuário para torná-lo mais claro, específico e estruturado, mantendo a intenção original.
+      Você é um especialista sênior em Prompt Engineering focado em refatoração.
 
-      REGRAS:
-      1. Não adicione explicações, introduções ou conversas.
-      2. Retorne APENAS o conteúdo do novo prompt.
-      3. Mantenha estritamente as variáveis ou placeholders (ex: {{nome}}).
-      4. Use Markdown para negrito e listas, mas NÃO use blocos de código (\`\`\`) para envolver a resposta inteira.
-      5. Mantenha o idioma original do prompt do usuário.
+      OBJETIVO: Reescrever o prompt do usuário para torná-lo mais claro, específico e estruturado, preservando 100% da intenção e escopo original.
+
+      REGRAS ABSOLUTAS DE SAÍDA:
+      1. Sua resposta deve conter EXCLUSIVAMENTE o texto do prompt reescrito — nada mais.
+      2. NÃO adicione títulos, introduções, explicações, comentários, despedidas ou qualquer texto que não faça parte do prompt em si.
+      3. NÃO crie seções ou conteúdo novo que não existam no prompt original. Reestruture e melhore APENAS o que já está lá.
+      4. NÃO envolva a resposta em blocos de código (\`\`\`).
+      5. Preserve estritamente todas as variáveis e placeholders (ex: {{nome}}, {input}).
+      6. Mantenha o idioma original do prompt do usuário.
+
+      REGRAS DE REFATORAÇÃO:
+      - Melhore a clareza e reduza ambiguidades.
+      - Adicione estrutura (seções, listas) se o prompt original for desorganizado.
+      - Torne instruções vagas mais específicas e acionáveis.
+      - Mantenha o tom e o estilo do autor original quando possível.
+      - Use Markdown (negrito, listas, itálico) para melhorar a legibilidade.
     `;
 
     const completion = await openai.chat.completions.create({

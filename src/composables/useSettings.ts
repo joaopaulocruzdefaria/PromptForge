@@ -12,11 +12,11 @@ const apiKey = ref(localStorage.getItem("pf_api_key") || "");
 const selectedModel = ref(localStorage.getItem("pf_model") || "gpt-4.1");
 const isSettingsOpen = ref(false);
 
-export function useSettings() {
-  // Salva no LocalStorage sempre que mudar
-  watch(apiKey, (newVal) => localStorage.setItem("pf_api_key", newVal));
-  watch(selectedModel, (newVal) => localStorage.setItem("pf_model", newVal));
+// Registra UMA VEZ no nível do módulo
+watch(apiKey, (newVal) => localStorage.setItem("pf_api_key", newVal));
+watch(selectedModel, (newVal) => localStorage.setItem("pf_model", newVal));
 
+export function useSettings() {
   const toggleSettings = () => {
     isSettingsOpen.value = !isSettingsOpen.value;
   };

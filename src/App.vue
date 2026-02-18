@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { Settings } from "lucide-vue-next"; // Importe o ícone
-  import { Analytics } from "@vercel/analytics/next";
 
   import DualEditorView from "./components/DualEditorView.vue";
   import AnalyzeButton from "./components/AnalyzeButton.vue";
@@ -25,7 +24,6 @@
 </script>
 
 <template>
-  <Analytics />
   <div id="App" class="bg-black min-h-screen relative">
     <div class="fixed bottom-43 right-10 z-50 flex flex-col gap-3">
       <button

@@ -6,13 +6,7 @@
   import DiffModal from "./DiffModal.vue";
   import AuditButton from "./AuditButton.vue";
   import { useSettings } from "../composables/useSettings"; // Importação correta
-  import {
-    FileText,
-    Code,
-    SplitSquareHorizontal,
-    Link2,
-    Link2Off,
-  } from "lucide-vue-next";
+  import { FileText, Code, SplitSquareHorizontal, Link2, Link2Off } from "lucide-vue-next";
 
   const props = defineProps<{
     initialContent?: string;
@@ -74,9 +68,12 @@
         return;
       }
 
-      const data = await response.json(); // (CORREÇÃO 2: Ler o JSON)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erro na requisição (${response.status})`);
+      }
 
-      if (!response.ok) throw new Error(data.error || "Erro na requisição");
+      const data = await response.json();
 
       if (data.optimizedPrompt) {
         optimizedContent.value = data.optimizedPrompt;

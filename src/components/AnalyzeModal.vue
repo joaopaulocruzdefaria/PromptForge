@@ -1,108 +1,108 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { ScanSearch, X, Sparkles, Loader2, Gauge, CheckCircle2 } from "lucide-vue-next";
-import { useSettings } from "../composables/useSettings"; // <--- Importação adicionada
+  import { ref, computed } from "vue";
+  import { ScanSearch, X, Sparkles, Loader2, CheckCircle2 } from "lucide-vue-next";
+  import { useSettings } from "../composables/useSettings"; // <--- Importação adicionada
 
-const props = defineProps<{
-  isOpen: boolean;
-  promptContent: string;
-}>();
+  const props = defineProps<{
+    isOpen: boolean;
+    promptContent: string;
+  }>();
 
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+  const emit = defineEmits<{
+    (e: "close"): void;
+  }>();
 
-// --- Integração com Configurações ---
-const { apiKey, selectedModel, toggleSettings } = useSettings();
+  // --- Integração com Configurações ---
+  const { apiKey, selectedModel, toggleSettings } = useSettings();
 
-const isAnalyzing = ref(false);
-const analysisResult = ref<string[] | null>(null);
-const score = ref<number | null>(null);
+  const isAnalyzing = ref(false);
+  const analysisResult = ref<string[] | null>(null);
+  const score = ref<number | null>(null);
 
-const estimatedTokens = computed(() => {
-  if (!props.promptContent) return 0;
-  return Math.ceil(props.promptContent.length / 4);
-});
+  const estimatedTokens = computed(() => {
+    if (!props.promptContent) return 0;
+    return Math.ceil(props.promptContent.length / 4);
+  });
 
-const scoreColor = computed(() => {
-  if (!score.value) return "bg-zinc-700";
-  if (score.value >= 90) return "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]";
-  if (score.value >= 70) return "bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]";
-  if (score.value >= 50) return "bg-yellow-500";
-  return "bg-red-500";
-});
+  const scoreColor = computed(() => {
+    if (!score.value) return "bg-zinc-700";
+    if (score.value >= 90) return "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]";
+    if (score.value >= 70) return "bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]";
+    if (score.value >= 50) return "bg-yellow-500";
+    return "bg-red-500";
+  });
 
-const scoreLabel = computed(() => {
-  if (!score.value) return "Pendente";
-  if (score.value >= 90) return "Excelente";
-  if (score.value >= 70) return "Muito Bom";
-  if (score.value >= 50) return "Regular";
-  return "Precisa Melhorar";
-});
+  const scoreLabel = computed(() => {
+    if (!score.value) return "Pendente";
+    if (score.value >= 90) return "Excelente";
+    if (score.value >= 70) return "Muito Bom";
+    if (score.value >= 50) return "Regular";
+    return "Precisa Melhorar";
+  });
 
-const formatItem = (text: string) => {
-  const parts = text.split(":");
-  if (parts.length > 1) {
-    return {
-      title: parts[0],
-      content: parts.slice(1).join(":"),
-    };
-  }
-  return { title: null, content: text };
-};
+  const formatItem = (text: string) => {
+    const parts = text.split(":");
+    if (parts.length > 1) {
+      return {
+        title: parts[0],
+        content: parts.slice(1).join(":"),
+      };
+    }
+    return { title: null, content: text };
+  };
 
-async function handleAnalyze() {
-  if (!props.promptContent.trim()) return;
+  async function handleAnalyze() {
+    if (!props.promptContent.trim()) return;
 
-  // 1. Validação da Chave (Antes da requisição)
-  if (!apiKey.value) {
-    alert("⚠️ Por favor, configure sua chave de API para continuar.");
-    emit("close"); // Fecha este modal
-    toggleSettings(); // Abre o modal de configurações
-    return;
-  }
-
-  isAnalyzing.value = true;
-  analysisResult.value = null;
-  score.value = null;
-
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        // Envia as credenciais do usuário
-        "x-api-key": apiKey.value,
-        "x-model": selectedModel.value
-      },
-      body: JSON.stringify({ prompt: props.promptContent }),
-    });
-
-    // 2. Tratamento de Erro 401 (Chave inválida ou recusada)
-    if (response.status === 401) {
-      const errorData = await response.json();
-      alert(errorData.message || "Erro de autenticação.");
-      emit("close");
-      toggleSettings();
+    // 1. Validação da Chave (Antes da requisição)
+    if (!apiKey.value) {
+      alert("⚠️ Por favor, configure sua chave de API para continuar.");
+      emit("close"); // Fecha este modal
+      toggleSettings(); // Abre o modal de configurações
       return;
     }
 
-    const data = await response.json();
+    isAnalyzing.value = true;
+    analysisResult.value = null;
+    score.value = null;
 
-    if (Array.isArray(data.analysis)) {
-      analysisResult.value = data.analysis;
-    } else if (typeof data.analysis === "string") {
-      analysisResult.value = [data.analysis];
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Envia as credenciais do usuário
+          "x-api-key": apiKey.value,
+          "x-model": selectedModel.value,
+        },
+        body: JSON.stringify({ prompt: props.promptContent }),
+      });
+
+      // 2. Tratamento de Erro 401 (Chave inválida ou recusada)
+      if (response.status === 401) {
+        const errorData = await response.json();
+        alert(errorData.message || "Erro de autenticação.");
+        emit("close");
+        toggleSettings();
+        return;
+      }
+
+      const data = await response.json();
+
+      if (Array.isArray(data.analysis)) {
+        analysisResult.value = data.analysis;
+      } else if (typeof data.analysis === "string") {
+        analysisResult.value = [data.analysis];
+      }
+
+      score.value = data.score;
+    } catch (error) {
+      console.error("Erro:", error);
+      analysisResult.value = ["Erro de conexão. Verifique o backend."];
+    } finally {
+      isAnalyzing.value = false;
     }
-
-    score.value = data.score;
-  } catch (error) {
-    console.error("Erro:", error);
-    analysisResult.value = ["Erro de conexão. Verifique o backend."];
-  } finally {
-    isAnalyzing.value = false;
   }
-}
 </script>
 
 <template>
