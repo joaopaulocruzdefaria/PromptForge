@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { computed, ref, watch, nextTick } from "vue";
+  import { watch, nextTick, toRef } from "vue";
   import { Check, X, GitCompare, RotateCcw, ArrowDown } from "lucide-vue-next";
-  import DiffMatchPatch from "diff-match-patch";
+  import { usePromptDiff } from "../composables/usePromptDiff";
 
   const props = defineProps<{
     isOpen: boolean;
@@ -14,24 +14,16 @@
     (e: "accept", content: string): void;
   }>();
 
-  // --- Definição dos Blocos ---
-  interface DiffBlock {
-    id: number;
-    type: "equal" | "change";
-    oldText: string;
-    newText: string;
-    status: "pending" | "accepted" | "rejected";
-    inlineDiffs?: Array<[number, string]>;
-  }
+  // Refs reativas para o composable
+  const originalRef = toRef(props, "originalText");
+  const newRef = toRef(props, "newText");
 
-  const blocks = ref<DiffBlock[]>([]);
+  const { blocks, computeBlocks, resolveBlock, undoResolution, pendingCount, mergedResult } =
+    usePromptDiff(originalRef, newRef);
 
   // --- Função de Truncamento Inteligente ---
   const formatContext = (text: string, type: number, index: number, total: number) => {
-    // Se for uma mudança ou texto curto, mostra tudo
     if (type !== 0 || text.length < 100) return text;
-
-    // Lógica de truncamento para contextos longos
     if (index === 0) {
       return "... " + text.slice(-50);
     } else if (index === total - 1) {
@@ -39,70 +31,6 @@
     } else {
       return text.slice(0, 30) + " ... " + text.slice(-30);
     }
-  };
-
-  const calculateInlineDiff = (text1: string, text2: string) => {
-    const dmp = new DiffMatchPatch();
-    const diff = dmp.diff_main(text1, text2);
-    dmp.diff_cleanupSemantic(diff);
-    return diff;
-  };
-
-  // --- Lógica Principal ---
-  const computeBlocks = () => {
-    if (!props.originalText || !props.newText) return;
-
-    const dmp = new DiffMatchPatch();
-
-    const a = dmp.diff_linesToChars_(props.originalText, props.newText);
-    const diffs = dmp.diff_main(a.chars1, a.chars2, false);
-    dmp.diff_charsToLines_(diffs, a.lineArray);
-    dmp.diff_cleanupSemantic(diffs);
-
-    const newBlocks: DiffBlock[] = [];
-    let currentId = 0;
-
-    for (let i = 0; i < diffs.length; i++) {
-      const [type, text] = diffs[i]!;
-
-      if (type === 0) {
-        newBlocks.push({
-          id: currentId++,
-          type: "equal",
-          oldText: text,
-          newText: text,
-          status: "accepted",
-        });
-      } else {
-        let blockOld = "";
-        let blockNew = "";
-
-        const nextDiff = diffs[i + 1];
-
-        if (type === -1) {
-          blockOld = text;
-          if (nextDiff && nextDiff[0] === 1) {
-            blockNew = nextDiff[1];
-            i++;
-          }
-        } else if (type === 1) {
-          blockNew = text;
-        }
-
-        const inlineDiffs = calculateInlineDiff(blockOld, blockNew);
-
-        newBlocks.push({
-          id: currentId++,
-          type: "change",
-          oldText: blockOld,
-          newText: blockNew,
-          status: "pending",
-          inlineDiffs: inlineDiffs,
-        });
-      }
-    }
-
-    blocks.value = newBlocks;
   };
 
   watch(
@@ -116,31 +44,9 @@
     { immediate: true }
   );
 
-  const resolveBlock = (id: number, decision: "accepted" | "rejected") => {
-    const block = blocks.value.find((b) => b.id === id);
-    if (block) block.status = decision;
-  };
-
-  const undoResolution = (id: number) => {
-    const block = blocks.value.find((b) => b.id === id);
-    if (block) block.status = "pending";
-  };
-
   const handleFinalMerge = () => {
-    let finalString = "";
-    blocks.value.forEach((block) => {
-      if (block.type === "equal") {
-        finalString += block.newText;
-      } else {
-        finalString += block.status === "accepted" ? block.newText : block.oldText;
-      }
-    });
-    emit("accept", finalString);
+    emit("accept", mergedResult.value);
   };
-
-  const pendingCount = computed(
-    () => blocks.value.filter((b) => b.type === "change" && b.status === "pending").length
-  );
 </script>
 
 <template>

@@ -1,25 +1,18 @@
 <script setup lang="ts">
-  import { ref } from "vue";
   import { SearchCode, X, AlertCircle, Loader2 } from "lucide-vue-next";
 
-  defineProps<{
+  const props = defineProps<{
     isOpen: boolean;
+    isLoading: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: "close"): void;
-    (e: "confirm"): void; // Novo evento
+    (e: "confirm"): void;
   }>();
 
-  const isLoading = ref(false);
-
   const handleConfirm = () => {
-    isLoading.value = true;
     emit("confirm");
-    // O loading será resetado pelo pai quando o processo acabar ou fechar o modal
-    setTimeout(() => {
-      isLoading.value = false;
-    }, 10000); // Fail-safe apenas visual
   };
 </script>
 
