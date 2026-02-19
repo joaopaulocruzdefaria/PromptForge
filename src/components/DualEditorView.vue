@@ -6,6 +6,7 @@
   import DiffModal from "./DiffModal.vue";
   import AuditButton from "./AuditButton.vue";
   import { useSettings } from "../composables/useSettings"; // Importação correta
+  import { useHistory } from "../composables/useHistory"; // Novo
   import { FileText, Code, SplitSquareHorizontal, Link2, Link2Off } from "lucide-vue-next";
 
   const props = defineProps<{
@@ -19,10 +20,18 @@
 
   // --- Setup do Composable de Configurações (CORREÇÃO 1) ---
   const { apiKey, selectedModel, toggleSettings } = useSettings();
+  const { addToHistory } = useHistory(); // Novo
 
   const content = ref(props.initialContent || "# Contexto Inicial\nDigite seu prompt aqui...");
   const currentMode = ref(props.mode || "visual");
   const isSyncScrollEnabled = ref(false);
+
+  // Watch para atualizar o conteúdo quando o pai mudar (ex: restore do histórico)
+  watchEffect(() => {
+    if (props.initialContent && props.initialContent !== content.value) {
+      content.value = props.initialContent;
+    }
+  });
 
   // --- Estados para Auditoria ---
   const isAuditModalOpen = ref(false);
@@ -78,9 +87,15 @@
       if (data.optimizedPrompt) {
         optimizedContent.value = data.optimizedPrompt;
 
+        // Salvar no histórico
+        addToHistory(content.value, data.optimizedPrompt, selectedModel.value);
+
         // (CORREÇÃO 3: Fluxo de Sucesso)
         isAuditModalOpen.value = false; // Fecha a confirmação
         isDiffModalOpen.value = true; // Abre o Diff
+
+        // Disparar evento para atualizar o draft local se necessário,
+        // mas o useHistory já cuida do draft atual via v-model no App.vue
       }
     } catch (error) {
       console.error("Erro ao auditar:", error);
